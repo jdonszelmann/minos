@@ -1,10 +1,10 @@
 [package]
-name = "ariadne"
+name = "minos"
 version = "0.4.0"
-description = "A fancy diagnostics & reporting crate"
-authors = ["Joshua Barretto <joshua.s.barretto@gmail.com>"]
+description = "A fancy diagnostics & reporting crate. A fork of Ariadne with a nicer interface."
+authors = ["Joshua Barretto <joshua.s.barretto@gmail.com>", "Jonathan Dönszelmann"]
 license = "MIT"
-repository = "https://github.com/zesterer/ariadne"
+repository = "https://github.com/jdonszelmann/minos"
 readme = "README.md"
 edition = "2018"
 keywords = ["error", "diagnostics", "report", "pretty", "compiler"]

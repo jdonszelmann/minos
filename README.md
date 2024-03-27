@@ -1,21 +1,21 @@
-# Ariadne
+# Minos
 
-[![crates.io](https://img.shields.io/crates/v/ariadne.svg)](https://crates.io/crates/ariadne)
-[![crates.io](https://docs.rs/ariadne/badge.svg)](https://docs.rs/ariadne)
-[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](https://github.com/zesterer/ariadne)
-![actions-badge](https://github.com/zesterer/ariadne/workflows/Rust/badge.svg?branch=main)
+[![crates.io](https://img.shields.io/crates/v/minos.svg)](https://crates.io/crates/minos)
+[![crates.io](https://docs.rs/minos/badge.svg)](https://docs.rs/minos)
+[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](https://github.com/zesterer/minos)
+![actions-badge](https://github.com/zesterer/minos/workflows/Rust/badge.svg?branch=main)
 
-A fancy compiler diagnostics crate.
+A fancy compiler diagnostics crate. A fork of [ariadne](https://github.com/zesterer/ariadne/) with a nicer interface.
 
 ## Example
 
-<a href = "https://github.com/zesterer/ariadne/blob/main/examples/multiline.rs">
-<img src="https://raw.githubusercontent.com/zesterer/ariadne/main/misc/example.png" alt="Ariadne supports arbitrary multi-line spans"/>
+<a href = "https://github.com/jdonszelmann/minos/blob/main/examples/multiline.rs">
+<img src="https://raw.githubusercontent.com/jdonszelmann/minos/main/misc/example.png" alt="minos supports arbitrary multi-line spans"/>
 </a>
 
 ```rust,ignore
 fn main() {
-    use ariadne::{Color, ColorGenerator, Fmt, Label, Report, ReportKind, Source};
+    use minos::{Color, ColorGenerator, Fmt, Label, Report, ReportKind, Source};
 
     let mut colors = ColorGenerator::new();
 
@@ -55,7 +55,7 @@ fn main() {
 }
 ```
 
-See [`examples/`](https://github.com/zesterer/ariadne/tree/main/examples) for more examples.
+See [`examples/`](https://github.com/zesterer/minos/tree/main/examples) for more examples.
 
 ## Usage
 
@@ -69,9 +69,10 @@ For each error you wish to report:
 
 ## About
 
-`ariadne` is a sister project of [`chumsky`](https://github.com/zesterer/chumsky/). Neither are dependent on
-one-another, but I'm working on both simultaneously and like to think that their features complement each other. If
-you're thinking of using `ariadne` to process your compiler's output, why not try using `chumsky` to process its input?
+`minos` is a fork of [`ariadne`](https://github.com/zesterer/ariadne), 
+which is a sister project of [`chumsky`](https://github.com/zesterer/chumsky/).
+However, we found that while developing [`lace`](https://github.com/lace-language/lace) that the interface that ariadne
+gives was not always how we liked it, and decided to make some changes.
 
 ## Features
 
@@ -95,16 +96,16 @@ you're thinking of using `ariadne` to process your compiler's output, why not tr
 - `"auto-color"` enables `concolor`'s `"auto"` feature for automatic color control
 
 `concolor`'s features should be defined by the top-level binary crate, but without any features enabled `concolor` does
-nothing. If `ariadne` is your only dependency using `concolor` then `"auto-color"` provides a convenience to enable
+nothing. If `minos` is your only dependency using `concolor` then `"auto-color"` provides a convenience to enable
 `concolor`'s automatic color support detection, i.e. this:
 ```TOML
 [dependencies]
-ariadne = { version = "...", features = ["auto-color"] }
+minos = { version = "...", features = ["auto-color"] }
 ```
 is equivalent to this:
 ```TOML
 [dependencies]
-ariadne = { version = "...", features = ["concolor"] }
+minos = { version = "...", features = ["concolor"] }
 concolor = { version = "...", features = ["auto"] }
 ```
 
