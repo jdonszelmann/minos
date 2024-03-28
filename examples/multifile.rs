@@ -4,13 +4,14 @@ fn main() {
     let mut colors = ColorGenerator::new();
 
     // Generate some colours for each of our elements
-    let a = colors.next();
-    let b = colors.next();
-    let c = colors.next();
+    let a = colors.next_color();
+    let b = colors.next_color();
+    let c = colors.next_color();
 
-    Report::build(ReportKind::Error, "b.tao", 10)
+    Report::build(ReportKind::Error)
+        .with_location("b.tao", 10)
         .with_code(3)
-        .with_message(format!("Cannot add types Nat and Str"))
+        .with_message("Cannot add types Nat and Str".to_string())
         .with_label(
             Label::new(("b.tao", 10..14))
                 .with_message(format!("This is of type {}", "Nat".fg(a)))

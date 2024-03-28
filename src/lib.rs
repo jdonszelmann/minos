@@ -50,6 +50,11 @@ pub trait Span {
         self.end().saturating_sub(self.start())
     }
 
+    /// Test whether the span is empty
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Determine whether the span contains the given offset.
     fn contains(&self, offset: usize) -> bool {
         (self.start()..self.end()).contains(&offset)
@@ -164,31 +169,27 @@ impl<S: Span> Label<S> {
 }
 
 /// A type representing a diagnostic that is ready to be written to output.
-pub struct Report<'a, S: Span = Range<usize>> {
-    kind: ReportKind<'a>,
+pub struct Report<'ast, S: Span = Range<usize>> {
+    kind: ReportKind<'ast>,
     code: Option<String>,
     msg: Option<String>,
     note: Option<String>,
     help: Option<String>,
-    location: (<S::SourceId as ToOwned>::Owned, usize),
+    location: Option<(<S::SourceId as ToOwned>::Owned, usize)>,
     labels: Vec<Label<S>>,
     config: Config,
 }
 
 impl<S: Span> Report<'_, S> {
     /// Begin building a new [`Report`].
-    pub fn build<Id: Into<<S::SourceId as ToOwned>::Owned>>(
-        kind: ReportKind,
-        src_id: Id,
-        offset: usize,
-    ) -> ReportBuilder<S> {
+    pub fn build(kind: ReportKind) -> ReportBuilder<S> {
         ReportBuilder {
             kind,
             code: None,
             msg: None,
             note: None,
             help: None,
-            location: (src_id.into(), offset),
+            location: None,
             labels: Vec::new(),
             config: Config::default(),
         }
@@ -208,7 +209,7 @@ impl<S: Span> Report<'_, S> {
     }
 }
 
-impl<'a, S: Span> fmt::Debug for Report<'a, S> {
+impl<'ast, S: Span> fmt::Debug for Report<'ast, S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Report")
             .field("kind", &self.kind)
@@ -222,7 +223,7 @@ impl<'a, S: Span> fmt::Debug for Report<'a, S> {
 }
 /// A type that defines the kind of report being produced.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ReportKind<'a> {
+pub enum ReportKind<'ast> {
     /// The report is an error and indicates a critical problem that prevents the program performing the requested
     /// action.
     Error,
@@ -232,7 +233,7 @@ pub enum ReportKind<'a> {
     /// The report is advice to the user about a potential anti-pattern of other benign issues.
     Advice,
     /// The report is of a kind not built into minos.
-    Custom(&'a str, Color),
+    Custom(&'ast str, Color),
 }
 
 impl fmt::Display for ReportKind<'_> {
@@ -247,21 +248,35 @@ impl fmt::Display for ReportKind<'_> {
 }
 
 /// A type used to build a [`Report`].
-pub struct ReportBuilder<'a, S: Span> {
-    kind: ReportKind<'a>,
+pub struct ReportBuilder<'ast, S: Span> {
+    kind: ReportKind<'ast>,
     code: Option<String>,
     msg: Option<String>,
     note: Option<String>,
     help: Option<String>,
-    location: (<S::SourceId as ToOwned>::Owned, usize),
+    location: Option<(<S::SourceId as ToOwned>::Owned, usize)>,
     labels: Vec<Label<S>>,
     config: Config,
 }
 
-impl<'a, S: Span> ReportBuilder<'a, S> {
+impl<'ast, S: Span> ReportBuilder<'ast, S> {
     /// Give this report a numerical code that may be used to more precisely look up the error in documentation.
     pub fn with_code<C: fmt::Display>(mut self, code: C) -> Self {
         self.code = Some(format!("{:02}", code));
+        self
+    }
+
+    /// Give this report a source file and location to report about.
+    ///
+    /// The offset is given in characters, not in bytes.
+    ///
+    /// When labels are given, setting this is typically not necessary.
+    pub fn with_location<Id: Into<<S::SourceId as ToOwned>::Owned>>(
+        mut self,
+        src_id: Id,
+        offset: usize,
+    ) -> Self {
+        self.location = Some((src_id.into(), offset));
         self
     }
 
@@ -331,7 +346,7 @@ impl<'a, S: Span> ReportBuilder<'a, S> {
     }
 
     /// Finish building the [`Report`].
-    pub fn finish(self) -> Report<'a, S> {
+    pub fn finish(self) -> Report<'ast, S> {
         Report {
             kind: self.kind,
             code: self.code,
@@ -345,7 +360,7 @@ impl<'a, S: Span> ReportBuilder<'a, S> {
     }
 }
 
-impl<'a, S: Span> fmt::Debug for ReportBuilder<'a, S> {
+impl<'ast, S: Span> fmt::Debug for ReportBuilder<'ast, S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("ReportBuilder")
             .field("kind", &self.kind)

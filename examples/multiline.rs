@@ -4,14 +4,15 @@ fn main() {
     let mut colors = ColorGenerator::new();
 
     // Generate & choose some colours for each of our elements
-    let a = colors.next();
-    let b = colors.next();
+    let a = colors.next_color();
+    let b = colors.next_color();
     let out = Color::Fixed(81);
-    let out2 = colors.next();
+    let out2 = colors.next_color();
 
-    Report::build(ReportKind::Error, "sample.tao", 12)
+    Report::build(ReportKind::Error)
+        .with_location("sample.tao", 12)
         .with_code(3)
-        .with_message(format!("Incompatible types"))
+        .with_message("Incompatible types".to_string())
         .with_label(
             Label::new(("sample.tao", 32..33))
                 .with_message(format!("This is of type {}", "Nat".fg(a)))
