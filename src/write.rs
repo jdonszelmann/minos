@@ -494,8 +494,7 @@ impl<S: Span> Report<'_, S> {
 
                 let margin_label = multi_labels_with_message
                     .iter()
-                    .enumerate()
-                    .filter_map(|(_i, label)| {
+                    .filter_map(|label| {
                         let is_start = line.span().contains(&label.char_span.start);
                         let is_end = line.span().contains(&label.last_offset());
                         if is_start {
@@ -522,8 +521,7 @@ impl<S: Span> Report<'_, S> {
                 // Generate a list of labels for this line, along with their label columns
                 let mut line_labels = multi_labels_with_message
                     .iter()
-                    .enumerate()
-                    .filter_map(|(_i, label)| {
+                    .filter_map(|label| {
                         let is_start = line.span().contains(&label.char_span.start);
                         let is_end = line.span().contains(&label.last_offset());
                         if is_start
@@ -880,16 +878,15 @@ impl<S: Span> Report<'_, S> {
 }
 
 #[cfg(test)]
+/// These tests use [insta](https://insta.rs/). If you do `cargo install cargo-insta` you can
+/// automatically update the snapshots with `cargo insta review` or `cargo insta accept`.
+///
+/// When adding new tests you can leave the string in the `assert_snapshot!` macro call empty:
+///
+///     assert_snapshot!(msg, @"");
+///
+/// and insta will fill it in.
 mod tests {
-    //! These tests use [insta](https://insta.rs/). If you do `cargo install cargo-insta` you can
-    //! automatically update the snapshots with `cargo insta review` or `cargo insta accept`.
-    //!
-    //! When adding new tests you can leave the string in the `assert_snapshot!` macro call empty:
-    //!
-    //!     assert_snapshot!(msg, @"");
-    //!
-    //! and insta will fill it in.
-
     use std::ops::Range;
 
     use insta::assert_snapshot;
