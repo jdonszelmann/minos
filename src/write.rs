@@ -189,15 +189,16 @@ impl<S: Span> Report<'_, S> {
                 |SourceGroup {
                      char_span, src_id, ..
                  }| {
-                    let src_name = cache
-                        .display(src_id)
-                        .map(|d| d.to_string())
-                        .unwrap_or_else(|| "<unknown>".to_string());
+                    let src_name = cache.display(src_id).map(|d| d.to_string());
 
                     let src = match cache.fetch(src_id) {
                         Ok(src) => src,
                         Err(e) => {
-                            eprintln!("Unable to fetch source {}: {:?}", src_name, e);
+                            eprintln!(
+                                "Unable to fetch source {}: {:?}",
+                                src_name.unwrap_or_else(|| "<unknown>".to_string()),
+                                e
+                            );
                             return None;
                         }
                     };
@@ -226,18 +227,23 @@ impl<S: Span> Report<'_, S> {
             },
         ) in groups.into_iter().enumerate()
         {
-            let src_name = cache
-                .display(src_id)
-                .map(|d| d.to_string())
-                .unwrap_or_else(|| "<unknown>".to_string());
+            let src_name = cache.display(src_id).map(|d| d.to_string());
 
             let src = match cache.fetch(src_id) {
                 Ok(src) => src,
                 Err(e) => {
-                    eprintln!("Unable to fetch source {}: {:?}", src_name, e);
+                    eprintln!(
+                        "Unable to fetch source {}: {:?}",
+                        src_name.unwrap_or_else(|| "<unknown>".to_string()),
+                        e
+                    );
                     continue;
                 }
             };
+
+            let src_name = src_name
+                .or_else(|| src.filename.as_ref().map(String::from))
+                .unwrap_or_else(|| "<unknown>".to_string());
 
             let line_range = src.get_line_range(&char_span);
 

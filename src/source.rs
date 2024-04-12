@@ -95,6 +95,7 @@ pub struct Source<I: AsRef<str> = String> {
     lines: Vec<Line>,
     len: usize,
     byte_len: usize,
+    pub(crate) filename: Option<String>,
 }
 
 impl<I: AsRef<str>> Source<I> {
@@ -161,11 +162,18 @@ impl<I: AsRef<str>> From<I> for Source<I> {
             lines,
             len: char_offset,
             byte_len: byte_offset,
+            filename: None,
         }
     }
 }
 
 impl<I: AsRef<str>> Source<I> {
+    /// Set the filename for this source file
+    pub fn with_filename(mut self, filename: impl AsRef<str>) -> Self {
+        self.filename = Some(filename.as_ref().to_string());
+        self
+    }
+
     /// Test whether the source is empty.
     pub fn is_empty(&self) -> bool {
         self.len() == 0
