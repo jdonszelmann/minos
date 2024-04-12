@@ -24,7 +24,7 @@ pub trait Cache<Id: ?Sized> {
     ///
     /// This function may make use of attributes from the [`Fmt`] trait.
     // TODO: Don't box
-    fn display<'ast>(&self, id: &'ast Id) -> Option<Box<dyn fmt::Display + 'ast>>;
+    fn display<'a>(&self, id: &'a Id) -> Option<Box<dyn fmt::Display + 'a>>;
 }
 
 impl<'bump, C: Cache<Id>, Id: ?Sized> Cache<Id> for &'bump mut C {
@@ -33,7 +33,7 @@ impl<'bump, C: Cache<Id>, Id: ?Sized> Cache<Id> for &'bump mut C {
     fn fetch(&mut self, id: &Id) -> Result<&Source<Self::Storage>, Box<dyn fmt::Debug + '_>> {
         C::fetch(self, id)
     }
-    fn display<'ast>(&self, id: &'ast Id) -> Option<Box<dyn fmt::Display + 'ast>> {
+    fn display<'a>(&self, id: &'a Id) -> Option<Box<dyn fmt::Display + 'a>> {
         C::display(self, id)
     }
 }
@@ -44,7 +44,7 @@ impl<C: Cache<Id>, Id: ?Sized> Cache<Id> for Box<C> {
     fn fetch(&mut self, id: &Id) -> Result<&Source<Self::Storage>, Box<dyn fmt::Debug + '_>> {
         C::fetch(self, id)
     }
-    fn display<'ast>(&self, id: &'ast Id) -> Option<Box<dyn fmt::Display + 'ast>> {
+    fn display<'a>(&self, id: &'a Id) -> Option<Box<dyn fmt::Display + 'a>> {
         C::display(self, id)
     }
 }
@@ -277,7 +277,7 @@ impl<I: AsRef<str>, Id: fmt::Display + Eq> Cache<Id> for (Id, Source<I>) {
             Err(Box::new(format!("Failed to fetch source '{}'", id)))
         }
     }
-    fn display<'ast>(&self, id: &'ast Id) -> Option<Box<dyn fmt::Display + 'ast>> {
+    fn display<'a>(&self, id: &'a Id) -> Option<Box<dyn fmt::Display + 'a>> {
         Some(Box::new(id))
     }
 }
@@ -300,7 +300,7 @@ impl Cache<Path> for FileCache {
             )),
         })
     }
-    fn display<'ast>(&self, path: &'ast Path) -> Option<Box<dyn fmt::Display + 'ast>> {
+    fn display<'a>(&self, path: &'a Path) -> Option<Box<dyn fmt::Display + 'a>> {
         Some(Box::new(path.display()))
     }
 }
@@ -343,7 +343,7 @@ where
 impl<Id: fmt::Display + Hash + PartialEq + Eq + Clone, F, I> Cache<Id> for FnCache<Id, F, I>
 where
     I: AsRef<str>,
-    F: for<'ast> FnMut(&'ast Id) -> Result<I, Box<dyn fmt::Debug>>,
+    F: for<'a> FnMut(&'a Id) -> Result<I, Box<dyn fmt::Debug>>,
 {
     type Storage = I;
 
@@ -353,7 +353,7 @@ where
             Entry::Vacant(entry) => entry.insert(Source::from((self.get)(id)?)),
         })
     }
-    fn display<'ast>(&self, id: &'ast Id) -> Option<Box<dyn fmt::Display + 'ast>> {
+    fn display<'a>(&self, id: &'a Id) -> Option<Box<dyn fmt::Display + 'a>> {
         Some(Box::new(id))
     }
 }

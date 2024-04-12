@@ -20,13 +20,13 @@ enum LabelKind {
     Multiline,
 }
 
-struct LabelInfo<'ast> {
+struct LabelInfo<'a> {
     kind: LabelKind,
     char_span: Range<usize>,
-    display_info: &'ast LabelDisplay,
+    display_info: &'a LabelDisplay,
 }
 
-impl<'ast> LabelInfo<'ast> {
+impl<'a> LabelInfo<'a> {
     fn last_offset(&self) -> usize {
         self.char_span
             .end
@@ -35,10 +35,10 @@ impl<'ast> LabelInfo<'ast> {
     }
 }
 
-struct SourceGroup<'ast, S: Span> {
-    src_id: &'ast S::SourceId,
+struct SourceGroup<'a, S: Span> {
+    src_id: &'a S::SourceId,
     char_span: Range<usize>,
-    labels: Vec<LabelInfo<'ast>>,
+    labels: Vec<LabelInfo<'a>>,
 }
 
 impl<S: Span> Report<'_, S> {
@@ -282,9 +282,9 @@ impl<S: Span> Report<'_, S> {
                 )?;
             }
 
-            struct LineLabel<'ast> {
+            struct LineLabel<'a> {
                 col: usize,
-                label: &'ast LabelInfo<'ast>,
+                label: &'a LabelInfo<'a>,
                 multi: bool,
                 draw_msg: bool,
             }

@@ -169,8 +169,8 @@ impl<S: Span> Label<S> {
 }
 
 /// A type representing a diagnostic that is ready to be written to output.
-pub struct Report<'ast, S: Span = Range<usize>> {
-    kind: ReportKind<'ast>,
+pub struct Report<'a, S: Span = Range<usize>> {
+    kind: ReportKind<'a>,
     code: Option<String>,
     msg: Option<String>,
     note: Option<String>,
@@ -209,7 +209,7 @@ impl<S: Span> Report<'_, S> {
     }
 }
 
-impl<'ast, S: Span> fmt::Debug for Report<'ast, S> {
+impl<'a, S: Span> fmt::Debug for Report<'a, S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Report")
             .field("kind", &self.kind)
@@ -223,7 +223,7 @@ impl<'ast, S: Span> fmt::Debug for Report<'ast, S> {
 }
 /// A type that defines the kind of report being produced.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ReportKind<'ast> {
+pub enum ReportKind<'a> {
     /// The report is an error and indicates a critical problem that prevents the program performing the requested
     /// action.
     Error,
@@ -233,7 +233,7 @@ pub enum ReportKind<'ast> {
     /// The report is advice to the user about a potential anti-pattern of other benign issues.
     Advice,
     /// The report is of a kind not built into minos.
-    Custom(&'ast str, Color),
+    Custom(&'a str, Color),
 }
 
 impl fmt::Display for ReportKind<'_> {
@@ -248,8 +248,8 @@ impl fmt::Display for ReportKind<'_> {
 }
 
 /// A type used to build a [`Report`].
-pub struct ReportBuilder<'ast, S: Span> {
-    kind: ReportKind<'ast>,
+pub struct ReportBuilder<'a, S: Span> {
+    kind: ReportKind<'a>,
     code: Option<String>,
     msg: Option<String>,
     note: Option<String>,
@@ -259,7 +259,7 @@ pub struct ReportBuilder<'ast, S: Span> {
     config: Config,
 }
 
-impl<'ast, S: Span> ReportBuilder<'ast, S> {
+impl<'a, S: Span> ReportBuilder<'a, S> {
     /// Give this report a numerical code that may be used to more precisely look up the error in documentation.
     pub fn with_code<C: fmt::Display>(mut self, code: C) -> Self {
         self.code = Some(format!("{:02}", code));
@@ -346,7 +346,7 @@ impl<'ast, S: Span> ReportBuilder<'ast, S> {
     }
 
     /// Finish building the [`Report`].
-    pub fn finish(self) -> Report<'ast, S> {
+    pub fn finish(self) -> Report<'a, S> {
         Report {
             kind: self.kind,
             code: self.code,
@@ -360,7 +360,7 @@ impl<'ast, S: Span> ReportBuilder<'ast, S> {
     }
 }
 
-impl<'ast, S: Span> fmt::Debug for ReportBuilder<'ast, S> {
+impl<'a, S: Span> fmt::Debug for ReportBuilder<'a, S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("ReportBuilder")
             .field("kind", &self.kind)
